@@ -8,5 +8,4 @@ Built with an intuitive **Streamlit** chat interface.
 
 ## Screenshot
 
-<img src="![image](https://github.com/user-attachments/assets/33b3f1ac-6476-4e64-ad5e-d456390b174c)" width="700"/>
-
+<img src="Output.png" width="700"/>
