@@ -1,32 +1,32 @@
 import streamlit as st
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.chains import RetrievalQA
 from langchain_community.vectorstores import FAISS
 from langchain_core.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
-from dotenv import load_dotenv, find_dotenv
 import os
 
-load_dotenv(find_dotenv())
-
 # Loading Database in cache
-DB_FAISS_PATH = "vectorstore/db_faiss"
+DB_FAISS_PATH="vectorstore/db_faiss"
 @st.cache_resource
 def get_vectorstore():
     embedding_model=HuggingFaceEmbeddings(model_name='sentence-transformers/all-MiniLM-L6-v2')
     db=FAISS.load_local(DB_FAISS_PATH, embedding_model, allow_dangerous_deserialization=True)
     return db
 
+# Setting custom prompt using prompt_template
 def set_custom_prompt(custom_prompt_template):
     prompt=PromptTemplate(template=custom_prompt_template, input_variables=["context", "question"])
     return prompt
 
+# Loading LLM
 def load_llm():
     llm = ChatOpenAI(
         temperature=0.5,
         model="gpt-3.5-turbo",  
     )
     return llm
+
 
 def main():
     st.title("Ask Curebot!")
@@ -53,7 +53,6 @@ def main():
 
                 Start the answer directly. No small talk please.
                 """
-        
         try: 
             vectorstore=get_vectorstore()
             if vectorstore is None:
@@ -67,13 +66,13 @@ def main():
                 chain_type_kwargs={'prompt': set_custom_prompt(CUSTOM_PROMPT_TEMPLATE)}
             )
 
-
             response=qa_chain.invoke({'query':prompt})
 
             result=response["result"]
             source_documents=response["source_documents"]
             #result_to_show=result+"\nSource Docs:\n"+str(source_documents)
             result_to_show=result
+            #response="Hi, I am MediBot!"
             st.chat_message('assistant').markdown(result_to_show)
             st.session_state.messages.append({'role':'assistant', 'content': result_to_show})
 
